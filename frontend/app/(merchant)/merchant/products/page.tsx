@@ -128,7 +128,7 @@ export default function ProductsPage() {
     setSaving(true);
 
     try {
-      const uploaded = [];
+      const uploaded: { image_url: string; sort_order: number }[] = [];
       for (const file of Array.from(files)) {
         const result = await uploadImage(token, "product", file);
         uploaded.push({ image_url: result.file_url, sort_order: uploaded.length });
