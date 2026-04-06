@@ -26,6 +26,16 @@ class Settings(BaseSettings):
             return [item.strip() for item in value.split(",") if item.strip()]
         return value
 
+    @field_validator("base_url", "frontend_url", mode="before")
+    @classmethod
+    def normalize_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            return None
+        return value.rstrip("/")
+
 
 @lru_cache
 def get_settings() -> Settings:

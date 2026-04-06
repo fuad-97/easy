@@ -43,11 +43,15 @@ def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 def root(request: Request):
     print(f"[root] FRONTEND_URL={settings.frontend_url!r}")
     if settings.frontend_url:
-        return RedirectResponse(url=settings.frontend_url, status_code=307)
+        return RedirectResponse(
+            url=settings.frontend_url,
+            status_code=302,
+            headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"},
+        )
 
     base_url = str(request.base_url).rstrip("/")
     return HTMLResponse(
