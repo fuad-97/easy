@@ -33,6 +33,11 @@ UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_ROOT), name="uploads")
 
 
+@app.on_event("startup")
+def log_frontend_url_on_startup() -> None:
+    print(f"[startup] FRONTEND_URL={settings.frontend_url!r}")
+
+
 @app.get("/health")
 def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
@@ -40,6 +45,7 @@ def healthcheck() -> dict[str, str]:
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
+    print(f"[root] FRONTEND_URL={settings.frontend_url!r}")
     if settings.frontend_url:
         return RedirectResponse(url=settings.frontend_url, status_code=307)
 
