@@ -1,8 +1,24 @@
 import { Dashboard, ListResponse, Order, Product, PublicStoreCard, Store, TokenResponse } from "@/lib/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+function normalizeBaseUrl(value?: string | null) {
+  if (!value) return "";
+  return value.endsWith("/") ? value.slice(0, -1) : value;
+}
 
-export const apiUrl = API_URL;
+function resolveApiUrl() {
+  if (typeof window !== "undefined") {
+    return normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) || window.location.origin;
+  }
+
+  return (
+    normalizeBaseUrl(process.env.INTERNAL_API_URL) ||
+    normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) ||
+    normalizeBaseUrl(process.env.BASE_URL) ||
+    (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : "")
+  );
+}
+
+export const apiUrl = resolveApiUrl();
 
 async function readError(response: Response) {
   try {
@@ -14,7 +30,7 @@ async function readError(response: Response) {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${resolveApiUrl()}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -34,7 +50,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit, token?: stri
 export function assetUrl(path?: string | null) {
   if (!path) return "";
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  return `${API_URL}${path}`;
+  return `${resolveApiUrl()}${path}`;
 }
 
 export const authApi = {
@@ -60,7 +76,7 @@ export const merchantApi = {
   updateProduct: (token: string, productId: number, payload: Record<string, unknown>) =>
     apiFetch<Product>(`/merchant/products/${productId}`, { method: "PATCH", body: JSON.stringify(payload) }, token),
   deleteProduct: async (token: string, productId: number) => {
-    const response = await fetch(`${API_URL}/merchant/products/${productId}`, {
+    const response = await fetch(`${resolveApiUrl()}/merchant/products/${productId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -79,7 +95,7 @@ export async function uploadImage(token: string, kind: "logo" | "banner" | "prod
   const formData = new FormData();
   formData.append("image", file);
 
-  const response = await fetch(`${API_URL}/uploads/store-image?kind=${kind}`, {
+  const response = await fetch(`${resolveApiUrl()}/uploads/store-image?kind=${kind}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`

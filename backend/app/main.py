@@ -1,6 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.auth import router as auth_router
@@ -39,5 +38,10 @@ def healthcheck() -> dict[str, str]:
 
 
 @app.get("/")
-def root() -> RedirectResponse:
-    return RedirectResponse(url="http://localhost:3000/", status_code=307)
+def root(request: Request) -> dict[str, str]:
+    base_url = str(request.base_url).rstrip("/")
+    return {
+        "message": "SmallBiz Commerce API is running",
+        "docs": f"{base_url}/docs",
+        "health": f"{base_url}/health",
+    }
