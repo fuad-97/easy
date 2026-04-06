@@ -1,0 +1,15 @@
+.git
+.gitignore
+frontend
+design
+docs
+backend/.venv
+backend/__pycache__
+backend/app/__pycache__
+backend/alembic/__pycache__
+backend/alembic/versions/__pycache__
+backend/tests
+backend/uploads
+backend/smallbiz.db
+node_modules
+.next
