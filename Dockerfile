@@ -6,14 +6,17 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 COPY backend/requirements.txt /app/backend/requirements.txt
+COPY start.sh /app/start.sh
+COPY build.sh /app/build.sh
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /app/backend/requirements.txt
+    pip install --no-cache-dir -r /app/backend/requirements.txt && \
+    chmod +x /app/start.sh /app/build.sh
 
 COPY backend /app/backend
 
-WORKDIR /app/backend
+WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python -m alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["bash", "./start.sh"]
