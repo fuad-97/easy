@@ -5,11 +5,38 @@ import { themeStyles, withAlpha } from "@/lib/store-theme";
 const fallbackImage =
   "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=800&q=80";
 
-export function StatCard({ label, value }: { label: string; value: string | number }) {
+export function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+  tone = "default",
+  featured = false
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+  icon?: React.ReactNode;
+  tone?: "default" | "blue" | "amber" | "green";
+  featured?: boolean;
+}) {
+  const toneClasses = {
+    default: "border-orange-100 bg-white",
+    blue: "border-sky-100 bg-sky-50/70",
+    amber: "border-amber-100 bg-amber-50/70",
+    green: "border-emerald-100 bg-emerald-50/70"
+  };
+
   return (
-    <div className="glass-card rounded-[1.5rem] p-5">
-      <p className="text-sm text-stone-500">{label}</p>
-      <p className="mt-2 text-3xl font-black text-ink">{value}</p>
+    <div className={`rounded-[1.5rem] border p-4 shadow-soft md:p-5 ${toneClasses[tone]} ${featured ? "md:col-span-2" : ""}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-stone-500">{label}</p>
+          <p className={`mt-2 font-black text-ink ${featured ? "text-4xl md:text-[2.6rem]" : "text-3xl"}`}>{value}</p>
+          {hint ? <p className="mt-2 text-xs font-medium text-stone-500 md:text-sm">{hint}</p> : null}
+        </div>
+        {icon ? <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/90 text-stone-700 shadow-sm">{icon}</div> : null}
+      </div>
     </div>
   );
 }
@@ -24,7 +51,7 @@ export function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="glass-card rounded-[1.75rem] p-5 md:p-6">
+    <section className="glass-card rounded-[1.75rem] p-4 md:p-5">
       <div className="mb-4 flex items-center justify-between gap-4">
         <h2 className="text-lg font-black text-ink md:text-xl">{title}</h2>
         {action}
@@ -51,13 +78,15 @@ export function ProductCard({
 }) {
   const theme = themeStyles(accentColor || "#C2410C");
   return (
-    <div className="overflow-hidden rounded-[1.8rem] border bg-white shadow-soft transition duration-200 hover:-translate-y-1" style={{ borderColor: withAlpha(theme.color, 0.16), ...theme.elevatedShadow }}>
-      <div className="flex h-48 items-center justify-center p-3 md:h-60 md:p-4" style={{ backgroundImage: `linear-gradient(180deg, ${withAlpha(theme.color, 0.08)} 0%, ${theme.soft} 100%)` }}>
-        <img
-          src={assetUrl(image) || fallbackImage}
-          alt={name}
-          className="h-full w-full rounded-[1.2rem] object-contain"
-        />
+    <div
+      className="overflow-hidden rounded-[1.8rem] border bg-white shadow-soft transition duration-200 hover:-translate-y-1"
+      style={{ borderColor: withAlpha(theme.color, 0.16), ...theme.elevatedShadow }}
+    >
+      <div
+        className="flex h-48 items-center justify-center p-3 md:h-60 md:p-4"
+        style={{ backgroundImage: `linear-gradient(180deg, ${withAlpha(theme.color, 0.08)} 0%, ${theme.soft} 100%)` }}
+      >
+        <img src={assetUrl(image) || fallbackImage} alt={name} className="h-full w-full rounded-[1.2rem] object-contain" />
       </div>
       <div className="space-y-3 p-4 md:p-5">
         <div className="flex items-start justify-between gap-3">
@@ -85,7 +114,16 @@ export function ProductCard({
 }
 
 export function OrderBadge({ status }: { status: string }) {
-  return <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-800">{orderStatusLabel(status)}</span>;
+  const tones: Record<string, string> = {
+    new: "bg-sky-100 text-sky-800",
+    confirmed: "bg-orange-100 text-orange-800",
+    preparing: "bg-amber-100 text-amber-900",
+    ready: "bg-lime-100 text-lime-900",
+    out_for_delivery: "bg-violet-100 text-violet-800",
+    delivered: "bg-emerald-100 text-emerald-800",
+    cancelled: "bg-rose-100 text-rose-800"
+  };
+  return <span className={`rounded-full px-3 py-1 text-xs font-bold ${tones[status] ?? "bg-stone-100 text-stone-700"}`}>{orderStatusLabel(status)}</span>;
 }
 
 export function ProductImageStage({ image, alt, className = "" }: { image?: string | null; alt: string; className?: string }) {
