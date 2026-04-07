@@ -61,6 +61,16 @@ export default function ProductDetailsPage({
 
   async function submitReview(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!product) {
+      setReviewState({
+        loading: false,
+        message: "",
+        error: "تعذر العثور على المنتج"
+      });
+      return;
+    }
+
     setReviewState({ loading: true, message: "", error: "" });
     try {
       await storefrontApi.createReview(slug, product.id, reviewForm);
